@@ -14,7 +14,7 @@ type UsersController struct {
 	// app *gopress.App
 }
 
-// NewUsersController returns controller instance
+// NewUsersController returns users controller instance
 func NewUsersController() *UsersController {
 	return new(UsersController)
 }

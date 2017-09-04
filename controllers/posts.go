@@ -17,6 +17,11 @@ type PostsController struct {
 	db  *services.DatabaseService
 }
 
+// NewPostsController returns posts controller instance
+func NewPostsController() *PostsController {
+	return new(PostsController)
+}
+
 // RegisterRoutes 注册路由
 func (u *PostsController) RegisterRoutes(app *gopress.App) {
 	u.app = app

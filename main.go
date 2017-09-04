@@ -22,8 +22,8 @@ func main() {
 	)
 
 	s.RegisterControllers(
-		new(controllers.UsersController),
-		new(controllers.PostsController),
+		controllers.NewUsersController(),
+		controllers.NewPostsController(),
 	)
 
 	s.Start()
