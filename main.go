@@ -1,6 +1,11 @@
 package main
 
 import (
+	"context"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/fpay/gopress"
 	"github.com/jerray/gopress-kick-starter/controllers"
 	"github.com/jerray/gopress-kick-starter/middlewares"
@@ -17,7 +22,7 @@ func main() {
 	)
 
 	s.RegisterGlobalMiddlewares(
-		gopress.NewLoggingMiddleware("global"),
+		gopress.NewLoggingMiddleware("global", nil),
 		middlewares.NewAuthMiddleware(),
 	)
 
@@ -26,5 +31,22 @@ func main() {
 		controllers.NewPostsController(),
 	)
 
-	s.Start()
+	go func() {
+		if err := s.Start(); err != nil {
+			s.Logger.Info("server shutdown")
+		}
+	}()
+
+	// graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := s.Shutdown(ctx); err != nil {
+		s.Logger.Fatalf("server shutdown error: %s", err)
+	}
+	time.Sleep(2 * time.Second)
 }
