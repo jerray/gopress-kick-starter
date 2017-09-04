@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/fpay/gopress"
 	"github.com/jerray/gopress-kick-starter/controllers"
+	"github.com/jerray/gopress-kick-starter/middlewares"
 	"github.com/jerray/gopress-kick-starter/services"
 )
 
@@ -11,17 +12,18 @@ func main() {
 		Port: 3000,
 	})
 
-	s.RegisterGlobalMiddlewares(
-		gopress.NewLoggingMiddleware("global"),
-	)
-
 	s.RegisterServices(
 		services.NewDatabaseService(),
 	)
 
+	s.RegisterGlobalMiddlewares(
+		gopress.NewLoggingMiddleware("global"),
+		middlewares.NewAuthMiddleware(),
+	)
+
 	s.RegisterControllers(
-		new(controllers.Users),
-		new(controllers.Posts),
+		new(controllers.UsersController),
+		new(controllers.PostsController),
 	)
 
 	s.Start()

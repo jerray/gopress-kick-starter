@@ -6,20 +6,33 @@ import (
 )
 
 const (
+	// DatabaseServiceName is the identity of database service
 	DatabaseServiceName = "database"
 )
 
+// DatabaseService type
 type DatabaseService struct {
+	// Uncomment this line if this service has dependence on other services in the container
+	// c *gopress.Container
+
 	*gorm.DB
 }
 
+// NewDatabaseService returns instance of database service
 func NewDatabaseService() *DatabaseService {
 	return new(DatabaseService)
 }
 
-func (d *DatabaseService) ServiceName() string {
+// ServiceName is used to implements gopress.Service
+func (s *DatabaseService) ServiceName() string {
 	return DatabaseServiceName
 }
 
-func (d *DatabaseService) RegisterContainer(c *gopress.Container) {
+// RegisterContainer is used to implements gopress.Service
+func (s *DatabaseService) RegisterContainer(c *gopress.Container) {
+	// Uncomment this line if this service has dependence on other services in the container
+	// s.c = c
+}
+
+func (s *DatabaseService) SampleMethod() {
 }

@@ -11,14 +11,14 @@ import (
 	"github.com/jerray/gopress-kick-starter/services"
 )
 
-// Posts 用户控制器
-type Posts struct {
+// PostsController 文章控制器
+type PostsController struct {
 	app *gopress.App
 	db  *services.DatabaseService
 }
 
 // RegisterRoutes 注册路由
-func (u *Posts) RegisterRoutes(app *gopress.App) {
+func (u *PostsController) RegisterRoutes(app *gopress.App) {
 	u.app = app
 	u.db = app.Services.Get(services.DatabaseServiceName).(*services.DatabaseService)
 
@@ -27,7 +27,7 @@ func (u *Posts) RegisterRoutes(app *gopress.App) {
 }
 
 // ViewPost 查看指定的一篇文章
-func (u *Posts) ViewPost(c gopress.Context) error {
+func (u *PostsController) ViewPost(c gopress.Context) error {
 	id := c.Param("id")
 	postID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
@@ -49,7 +49,7 @@ func (u *Posts) ViewPost(c gopress.Context) error {
 }
 
 // Profile 查看文章列表
-func (u *Posts) ListPosts(c gopress.Context) error {
+func (u *PostsController) ListPosts(c gopress.Context) error {
 	user := &models.User{
 		ID:        uint64(1),
 		Name:      "Admin",

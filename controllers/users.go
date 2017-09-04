@@ -8,23 +8,34 @@ import (
 	"github.com/jerray/gopress-kick-starter/models"
 )
 
-// Users 用户控制器
-type Users struct {
+// UsersController 用户控制器
+type UsersController struct {
+	// Uncomment this line if you want to use services in the app
+	// app *gopress.App
+}
+
+// NewUsersController returns controller instance
+func NewUsersController() *UsersController {
+	return new(UsersController)
 }
 
 // RegisterRoutes 注册路由
-func (u *Users) RegisterRoutes(app *gopress.App) {
+func (u *UsersController) RegisterRoutes(app *gopress.App) {
+	// Uncomment this line if you want to use services in the app
+	// c.app = app
 	app.GET("/login", u.Login)
 	app.GET("/user", u.Profile)
 }
 
 // Login 登录action
-func (u *Users) Login(c gopress.Context) error {
+func (u *UsersController) Login(c gopress.Context) error {
 	return c.Render(http.StatusOK, "users/login", nil)
 }
 
 // Profile 查看用户详情
-func (u *Users) Profile(c gopress.Context) error {
+func (u *UsersController) Profile(c gopress.Context) error {
+	// Or you can get app from request context
+	// app := gopress.AppFromContext(ctx)
 	user := &models.User{
 		ID:        uint64(1),
 		Name:      "Admin",
