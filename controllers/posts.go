@@ -1,75 +1,54 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/fpay/gopress"
-	"github.com/jerray/gopress-kick-starter/models"
-	"github.com/jerray/gopress-kick-starter/services"
+	starter "github.com/jerray/gopress-kick-starter"
+	"github.com/jerray/gopress-kick-starter/middlewares"
 )
 
 // PostsController 文章控制器
 type PostsController struct {
-	app *gopress.App
-	db  *services.DatabaseService
+	postService starter.PostService
 }
 
 // NewPostsController returns posts controller instance
-func NewPostsController() *PostsController {
-	return new(PostsController)
-}
-
-// RegisterRoutes 注册路由
-func (u *PostsController) RegisterRoutes(app *gopress.App) {
-	u.app = app
-	u.db = app.Services.Get(services.DatabaseServiceName).(*services.DatabaseService)
-
-	app.GET("/posts", u.ListPosts)
-	app.GET("/posts/:id", u.ViewPost)
+func NewPostsController(postService starter.PostService) *PostsController {
+	return &PostsController{postService: postService}
 }
 
 // ViewPost 查看指定的一篇文章
-func (u *PostsController) ViewPost(c gopress.Context) error {
-	id := c.Param("id")
+func (c *PostsController) ViewPost(ctx gopress.Context) error {
+	id := ctx.Param("id")
 	postID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		return err
 	}
 
-	title := fmt.Sprintf("Article %d", postID)
-	post := &models.Post{
-		ID:      postID,
-		UserID:  1,
-		Title:   title,
-		Content: "Generated content! Using service: " + u.db.ServiceName(),
+	post, err := c.postService.GetPostByID(postID)
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, "failed to get post")
 	}
 
 	data := map[string]interface{}{
 		"post": post,
 	}
-	return c.Render(http.StatusOK, "posts/detail", data)
+	return ctx.Render(http.StatusOK, "posts/detail", data)
 }
 
 // Profile 查看文章列表
-func (u *PostsController) ListPosts(c gopress.Context) error {
-	user := &models.User{
-		ID:        uint64(1),
-		Name:      "Admin",
-		CreatedAt: time.Now(),
-	}
+func (c *PostsController) ListPosts(ctx gopress.Context) error {
+	user := middlewares.ExtractUser(ctx)
 
-	posts := []*models.Post{
-		{ID: 1, UserID: 1, Title: "Echo framework", Content: "Awesome!"},
-		{ID: 2, UserID: 1, Title: "Handlebars template engine", Content: "Powerful!"},
-		{ID: 3, UserID: 2, Title: "Using GORM", Content: "Handsome!"},
-		{ID: 4, UserID: 1, Title: "Static supported", Content: "Yo!"},
+	posts, err := c.postService.ListPostsByUser(user)
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, "failed to get posts")
 	}
 	data := map[string]interface{}{
 		"user":  user,
 		"posts": posts,
 	}
-	return c.Render(http.StatusOK, "posts/list", data)
+	return ctx.Render(http.StatusOK, "posts/list", data)
 }

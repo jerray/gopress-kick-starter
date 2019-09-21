@@ -1,4 +1,4 @@
-package models
+package starter
 
 import "time"
 
@@ -13,4 +13,10 @@ type Post struct {
 
 func (p *Post) TableName() string {
 	return "posts"
+}
+
+type PostService interface {
+	CreatePost(post *Post) error
+	GetPostByID(id uint64) (*Post, error)
+	ListPostsByUser(user *User) ([]*Post, error)
 }

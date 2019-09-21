@@ -2,29 +2,20 @@ package controllers
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/fpay/gopress"
-	"github.com/jerray/gopress-kick-starter/models"
+	starter "github.com/jerray/gopress-kick-starter"
+	"github.com/jerray/gopress-kick-starter/middlewares"
 )
 
 // UsersController 用户控制器
 type UsersController struct {
-	// Uncomment this line if you want to use services in the app
-	// app *gopress.App
+	userService starter.UserService
 }
 
 // NewUsersController returns users controller instance
-func NewUsersController() *UsersController {
-	return new(UsersController)
-}
-
-// RegisterRoutes 注册路由
-func (u *UsersController) RegisterRoutes(app *gopress.App) {
-	// Uncomment this line if you want to use services in the app
-	// c.app = app
-	app.GET("/login", u.Login)
-	app.GET("/user", u.Profile)
+func NewUsersController(userService starter.UserService) *UsersController {
+	return &UsersController{userService: userService}
 }
 
 // Login 登录action
@@ -34,12 +25,11 @@ func (u *UsersController) Login(c gopress.Context) error {
 
 // Profile 查看用户详情
 func (u *UsersController) Profile(c gopress.Context) error {
-	// Or you can get app from request context
-	// app := gopress.AppFromContext(ctx)
-	user := &models.User{
-		ID:        uint64(1),
-		Name:      "Admin",
-		CreatedAt: time.Now(),
+	user := middlewares.ExtractUser(c)
+
+	user, err := u.userService.GetUserByID(user.ID)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	data := map[string]interface{}{
 		"user": user,
